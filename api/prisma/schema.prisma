@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Club {
+  id        Int      @id @default(autoincrement())
+  name      String
+  level     Int
+  creatorId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ClubMembers ClubMembers[]
+  Invitation Invitation[]
+  Requests Requests[]
+}
+
+model ClubMembers {
+  clubId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club      Club     @relation(fields: [clubId], references: [id])
+
+  @@id([clubId, userId])
+}
+
+model Invitation {
+  id        Int      @id @default(autoincrement())
+  clubId    Int
+  inviterId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club      Club     @relation(fields: [clubId], references: [id])
+}
+
+model Requests {
+  id        Int      @id @default(autoincrement())
+  clubId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club      Club     @relation(fields: [clubId], references: [id])
+}
