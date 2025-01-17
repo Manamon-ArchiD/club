@@ -1,0 +1,9 @@
+services:
+  manamon-club-api:
+    container_name: manamon-club-api
+    build:
+        context: ./api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/app
