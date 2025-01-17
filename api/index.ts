@@ -1,17 +1,22 @@
-const express = require("express");
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { options } from "./swagger.js";
+import { PrismaClient } from "@prisma/client";
 
+
+// import swaggerJsdoc from "swagger-jsdoc";
+// import swaggerUi from "swagger-ui-express";
+// import { options } from "./swagger.js";
+
+const prisma = new PrismaClient();
+const express = require("express");
 const app = express();
 const port = 3000;
-const specs = swaggerJsdoc(options);
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
-);
+// const specs = swaggerJsdoc(options);
+
+// app.use(
+//   "/api-docs",
+//   swaggerUi.serve,
+//   swaggerUi.setup(specs, { explorer: true })
+// );
 
 app.get("/", (req, res) => {
   const response = {
