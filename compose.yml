@@ -1,4 +1,5 @@
 services:
+
   manamon-club-api:
     container_name: manamon-club-api
     build:
@@ -7,3 +8,17 @@ services:
       - "3000:3000"
     volumes:
       - ./api:/app
+    depends_on:
+      - manamon-club-db
+
+  manamon-club-db:
+    container_name: manamon-club-db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: manamon
+      POSTGRES_PASSWORD: manamon
+      POSTGRES_DB: manamon
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
