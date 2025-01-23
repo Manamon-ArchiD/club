@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { options } from "./swagger";
