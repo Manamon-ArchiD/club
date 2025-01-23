@@ -4,6 +4,8 @@ import swaggerUi from "swagger-ui-express";
 import { options } from "./swagger";
 import express, { Request, Response } from 'express';
 
+import clubController from "./controllers/club.controller";
+
 const app = express();
 const port = 3000;
 
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 
   res.send(response);
 });
+
+app.use("/club", clubController);
 
 app.listen(port, () => {
   console.log("Server is running on port", port);

@@ -1,5 +1,8 @@
-node_modules
 .env
-.idea
-db
 .DS_Store
+.idea
+
+db
+node_modules
+
+package-lock.json
