@@ -1,9 +1,9 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { options } from "./swagger";
-import express, { Request, Response } from "express";
-import clubController from "@/controllers/club.controller";
+import express from "express";
 import bodyParser from "body-parser";
+import clubController from "./controllers/club.controller";
 
 const app = express();
 const port = 3000;
