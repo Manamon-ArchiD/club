@@ -1,20 +1,55 @@
-import { PrismaClient, Club } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export class ClubService {
+class ClubService {
+  /**
+   * Créer un club
+   */
+  async createClub(name: string, level: number, ownerId: number) {
+    return await prisma.club.create({
+      data: {
+        name,
+        level,
+        ownerId,
+      },
+    });
+  }
 
-    async getAll() {
-        return prisma.club.findMany();
-    }
+  /**
+   * Récupérer les informations d'un club par son ID
+   */
+  async getClubById(clubId: number) {
+    return await prisma.club.findUnique({
+      where: { id: clubId },
+      include: {
+        ClubMembers: true,
+        Invitations: true,
+        Requests: true,
+      },
+    });
+  }
 
-    async getClubById(id: number) {
-        return null
-    }
+  /**
+   * Modifier les informations d'un club (seul l'owner peut modifier)
+   */
+  async updateClub(
+    clubId: number,
+    ownerId: number,
+    data: { name?: string; level?: number }
+  ) {
+    const club = await prisma.club.findUnique({
+      where: { id: clubId },
+    });
 
-    async updateClubById(id: number, data: Partial<Club>) {
-        return null;
-    }
+    if (!club) throw new Error("Club non trouvé.");
+    if (club.ownerId !== ownerId) throw new Error("Accès refusé.");
+
+    return await prisma.club.update({
+      where: { id: clubId },
+      data,
+    });
+  }
 }
 
 export default new ClubService();

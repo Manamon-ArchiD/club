@@ -1,9 +1,10 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { options } from "./swagger";
-import express, { Request, Response } from 'express';
+import express, { Request, Response } from "express";
 
 import clubController from "./controllers/club.controller";
+import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
@@ -15,6 +16,9 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(specs, { explorer: true })
 );
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
   const response = {
