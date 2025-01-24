@@ -17,6 +17,7 @@
 ```shell
 $ cd api
 $ npm install
+$ npx prisma migrate deploy
 $ cd ..
 $ docker-compose up
 ```
