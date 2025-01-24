@@ -7,7 +7,7 @@ class ClubService {
    * Créer un club
    */
   async createClub(name: string, level: number, ownerId: number) {
-    return await prisma.club.create({
+    return prisma.club.create({
       data: {
         name,
         level,
@@ -20,7 +20,7 @@ class ClubService {
    * Récupérer les informations d'un club par son ID
    */
   async getClubById(clubId: number) {
-    return await prisma.club.findUnique({
+    return prisma.club.findUnique({
       where: { id: clubId },
       include: {
         ClubMembers: true,
@@ -36,7 +36,7 @@ class ClubService {
   async updateClub(
     clubId: number,
     ownerId: number,
-    data: { name?: string; level?: number }
+    data: { name?: string; level?: number, ownerId?: number }
   ) {
     const club = await prisma.club.findUnique({
       where: { id: clubId },
@@ -45,7 +45,7 @@ class ClubService {
     if (!club) throw new Error("Club non trouvé.");
     if (club.ownerId !== ownerId) throw new Error("Accès refusé.");
 
-    return await prisma.club.update({
+    return prisma.club.update({
       where: { id: clubId },
       data,
     });
