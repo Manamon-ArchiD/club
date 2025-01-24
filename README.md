@@ -17,7 +17,7 @@
 ```shell
 $ cd api
 $ npm install
-$ npx prisma migrate deploy
+$ npx prisma migrate deploy # use DATABASE_URL variable in a .env file.
 $ cd ..
 $ docker-compose up
 ```
