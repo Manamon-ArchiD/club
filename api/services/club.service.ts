@@ -36,7 +36,7 @@ class ClubService {
   async updateClub(
     clubId: number,
     ownerId: number,
-    data: { name?: string; level?: number, ownerId?: number }
+    data: { name?: string; level?: number; ownerId?: number }
   ) {
     const club = await prisma.club.findUnique({
       where: { id: clubId },
@@ -48,6 +48,34 @@ class ClubService {
     return prisma.club.update({
       where: { id: clubId },
       data,
+    });
+  }
+
+  async sendInvitation(clubId: number, inviterId: number, userId: number) {
+    return await prisma.invitation.create({
+      data: {
+        clubId,
+        inviterId,
+        userId,
+      },
+    });
+  }
+
+  async sendJoinRequest(clubId: number, userId: number) {
+    return await prisma.request.create({
+      data: {
+        clubId,
+        userId,
+      },
+    });
+  }
+
+  async getJoinRequests(clubId: number) {
+    // Récupère toutes les demandes d'adhésion pour un club spécifique
+    return await prisma.request.findMany({
+      where: {
+        clubId,
+      },
     });
   }
 }
