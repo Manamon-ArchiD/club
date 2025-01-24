@@ -8,8 +8,5 @@
         "./*"
       ]
     },
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es6"
   }
 }
