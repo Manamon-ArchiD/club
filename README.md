@@ -13,3 +13,12 @@
   - POST /club/{clubId}/invite
 ---
 
+### Lancement de l'application
+```shell
+$ cd api
+$ npm install
+$ cd ..
+$ docker-compose up
+```
+
+Le swagger est disponible à l'adresse `http://localhost:3000/api-docs/`.
