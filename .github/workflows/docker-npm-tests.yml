@@ -1,3 +1,14 @@
+name: Deployment tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
   docker-and-npm-tests:
     runs-on: ubuntu-latest
@@ -52,12 +63,16 @@ jobs:
       # 8. Appliquer les migrations Prisma
       - name: Apply Prisma migrations
         working-directory: ./api
-        run: npx prisma migrate deploy
+        run: |
+          export DATABASE_URL=postgresql://manamon:manamon@localhost:5432/manamon?schema=public
+          npx prisma migrate deploy
 
       # 9. Peuplement de la base de données
       - name: Populate database
         working-directory: ./api
-        run: npm run populate
+        run: |
+          export DATABASE_URL=postgresql://manamon:manamon@localhost:5432/manamon?schema=public
+          npm run populate
 
       # 10. Lancer les tests avec Jest
       - name: Run tests
