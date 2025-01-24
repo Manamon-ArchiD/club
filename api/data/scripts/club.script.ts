@@ -13,7 +13,7 @@ export async function generateClubs(count: number) {
 function generateClub(count: number) {
   const clubs: ClubCreateInputWithoutId[] = [];
   const owners: number[] = [];
-  for (let i = 1; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     // Unique owner
     let ownerId = faker.number.int({ min: 1, max: 5000 });
     while (owners.includes(ownerId)) {

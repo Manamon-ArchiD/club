@@ -1,6 +1,8 @@
 import { PrismaClient, Invitation } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 
+type InvitationCreateInputWithoutId = Omit<Invitation, "id">;
+
 export async function generateInvitations(maxCount: number) {
     const invitations = await generateInvitation(maxCount); // Assurez-vous que cette fonction renvoie un tableau résolu
     const prisma = new PrismaClient();
@@ -8,10 +10,10 @@ export async function generateInvitations(maxCount: number) {
     await prisma.$disconnect();
 }
 
-async function generateInvitation(maxCount: number): Promise<Invitation[]> {
+async function generateInvitation(maxCount: number): Promise<InvitationCreateInputWithoutId[]> {
     const prisma = new PrismaClient();
     const clubs = await prisma.club.findMany();
-    const invitations: Invitation[] = [];
+    const invitations: InvitationCreateInputWithoutId[] = [];
     let invitationsCount = 0;
 
     for (const club of clubs) {
@@ -25,7 +27,6 @@ async function generateInvitation(maxCount: number): Promise<Invitation[]> {
 
         for (let i = 0; i < count; i++) {
             invitations.push({
-                id: invitationsCount + 1,
                 clubId: club.id,
                 inviterId: club.ownerId,
                 userId: clubMembers.length > 0 ? clubMembers[faker.number.int({ min: 0, max: clubMembers.length - 1 })] : 1,

@@ -7,7 +7,7 @@
     "test": "jest",
     "dev": "npx ts-node-dev --respawn --transpile-only index.ts",
     "start": "node index.js",
-    "populate": "ts-node-dev ./data/index.ts"
+    "populate": "npx prisma migrate reset && ts-node-dev ./data/index.ts"
   },
   "author": "",
   "license": "ISC",

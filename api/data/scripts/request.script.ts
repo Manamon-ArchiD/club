@@ -1,6 +1,8 @@
 import { PrismaClient, Request } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
+type RequestCreateInputWithoutId = Omit<Request, 'id'>;
+
 export async function generateRequests(maxCount: number) {
     const requests = await generateRequest(maxCount);
     const prisma = new PrismaClient();
@@ -8,10 +10,10 @@ export async function generateRequests(maxCount: number) {
     await prisma.$disconnect();
 }
 
-async function generateRequest(maxCount: number): Promise<Request[]> {
+async function generateRequest(maxCount: number): Promise<RequestCreateInputWithoutId[]> {
     const prisma = new PrismaClient();
     const clubs = await prisma.club.findMany();
-    const requests: Request[] = [];
+    const requests: RequestCreateInputWithoutId[] = [];
     let requestsCount = 0;
 
     for (const club of clubs) {
@@ -30,7 +32,6 @@ async function generateRequest(maxCount: number): Promise<Request[]> {
             }
 
             requests.push({
-                id: requestsCount + 1,
                 clubId: club.id,
                 userId: userId,
                 createdAt: faker.date.past(),
