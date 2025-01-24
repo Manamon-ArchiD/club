@@ -2,8 +2,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { options } from "./swagger";
 import express, { Request, Response } from "express";
-
-import clubController from "./controllers/club.controller";
+import clubController from "@/controllers/club.controller";
 import bodyParser from "body-parser";
 
 const app = express();
@@ -34,3 +33,5 @@ app.use("/club", clubController);
 app.listen(port, () => {
   console.log("Server is running on port", port);
 });
+
+export default app;
