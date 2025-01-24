@@ -1,11 +1,3 @@
-name: Docker Compose and NPM Tests
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-
 jobs:
   docker-and-npm-tests:
     runs-on: ubuntu-latest
@@ -15,7 +7,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Démarrage des services avec Docker Compose
+      # 2. Installer Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Installer Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      # 4. Démarrage des services avec Docker Compose
       - name: Start Docker Compose services
         run: |
           docker-compose -f compose.yml up -d
@@ -24,11 +27,11 @@ jobs:
           POSTGRES_PASSWORD: manamon
           POSTGRES_DB: manamon
 
-      # 3. Vérification des services Docker
+      # 5. Vérification des services Docker
       - name: Verify Docker services are running
         run: docker-compose ps
 
-      # 4. Installation des dépendances NPM
+      # 6. Installation des dépendances NPM
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -38,7 +41,7 @@ jobs:
         working-directory: ./api
         run: npm install
 
-      # 5. Attente que PostgreSQL soit prêt
+      # 7. Attente que PostgreSQL soit prêt
       - name: Wait for PostgreSQL to be ready
         run: |
           until docker exec manamon-club-db pg_isready -U manamon -d manamon; do
@@ -46,22 +49,22 @@ jobs:
             sleep 2
           done
 
-      # 6. Appliquer les migrations Prisma
+      # 8. Appliquer les migrations Prisma
       - name: Apply Prisma migrations
         working-directory: ./api
         run: npx prisma migrate deploy
 
-      # 7. Peuplement de la base de données
+      # 9. Peuplement de la base de données
       - name: Populate database
         working-directory: ./api
         run: npm run populate
 
-      # 8. Lancer les tests avec Jest
+      # 10. Lancer les tests avec Jest
       - name: Run tests
         working-directory: ./api
         run: npm test
 
-      # 9. Nettoyage des conteneurs Docker
+      # 11. Nettoyage des conteneurs Docker
       - name: Tear down Docker Compose
         if: always()
         run: docker-compose -f compose.yml down
