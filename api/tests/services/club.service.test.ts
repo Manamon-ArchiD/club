@@ -26,142 +26,261 @@ describe("ClubService", () => {
     jest.clearAllMocks();
   });
 
-  it("createClub", async () => {
-    const createdAt = new Date();
+  describe("createClub", () => {
+    it("should create a club", async () => {
+      const createdAt = new Date();
 
-    // Configuration du mock
-    (prisma.club.create as jest.Mock).mockResolvedValue({
-      id: 1,
-      name: "Mock Club A",
-      level: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      ownerId: 1,
+      (prisma.club.create as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        createdAt,
+        updatedAt: createdAt,
+        ownerId: 1,
+      });
+
+      const club = await ClubService.createClub("Mock Club A", 1, 1);
+
+      expect(prisma.club.create).toHaveBeenCalledWith({
+        data: {
+          name: "Mock Club A",
+          level: 1,
+          ownerId: 1,
+        },
+      });
+
+      expect(club).toEqual({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        createdAt,
+        updatedAt: createdAt,
+        ownerId: 1,
+      });
     });
 
-    const club = await ClubService.createClub("Mock Club A", 1, 1);
-    expect(club).toEqual({
-      id: 1,
-      name: "Mock Club A",
-      level: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      ownerId: 1,
-    });
-  });
+    it("should throw an error if creation fails", async () => {
+      (prisma.club.create as jest.Mock).mockRejectedValue(
+        new Error("Database error")
+      );
 
-  it("getClubById", async () => {
-    const createdAt = new Date();
-
-    // Configuration du mock
-    (prisma.club.findUnique as jest.Mock).mockResolvedValue({
-      id: 1,
-      name: "Mock Club A",
-      level: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      ownerId: 1,
-    });
-
-    const club = await ClubService.getClubById(1);
-    expect(club).toEqual({
-      id: 1,
-      name: "Mock Club A",
-      level: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      ownerId: 1,
+      await expect(ClubService.createClub("Mock Club A", 1, 1)).rejects.toThrow(
+        "Database error"
+      );
     });
   });
 
-  it("updateClub", async () => {
-    const createdAt = new Date();
-    const updatedAt = new Date();
-    updatedAt.setMinutes(updatedAt.getMinutes() + 1);
+  describe("getClubById", () => {
+    it("should return a club by ID", async () => {
+      const createdAt = new Date();
 
-    // Configuration du mock
-    (prisma.club.update as jest.Mock).mockResolvedValue({
-      id: 1,
-      name: "New Mock Club A",
-      level: 2,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      ownerId: 1,
+      (prisma.club.findUnique as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        createdAt,
+        updatedAt: createdAt,
+        ownerId: 1,
+      });
+
+      const club = await ClubService.getClubById(1);
+
+      expect(prisma.club.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+        include: {
+          ClubMembers: true,
+          Invitations: true,
+          Requests: true,
+        },
+      });
+
+      expect(club).toEqual({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        createdAt,
+        updatedAt: createdAt,
+        ownerId: 1,
+      });
     });
 
-    const club = await ClubService.updateClub(1, 1, {
-      name: "New Mock Club A",
-      level: 2,
-    });
-    expect(club).toEqual({
-      id: 1,
-      name: "New Mock Club A",
-      level: 2,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      ownerId: 1,
-    });
-  });
+    it("should return null if club not found", async () => {
+      (prisma.club.findUnique as jest.Mock).mockResolvedValue(null);
 
-  it("sendInvitation", async () => {
-    const createdAt = new Date();
-
-    // Configuration du mock
-    (prisma.invitation.create as jest.Mock).mockResolvedValue({
-      clubId: 1,
-      inviterId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-    });
-
-    const club = await ClubService.sendInvitation(1, 1, 1);
-    expect(club).toEqual({
-      clubId: 1,
-      inviterId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
+      const club = await ClubService.getClubById(99);
+      expect(club).toBeNull();
     });
   });
 
-  it("sendJoinRequest", async () => {
-    const createdAt = new Date();
+  describe("updateClub", () => {
+    it("should update a club", async () => {
+      const createdAt = new Date();
+      const updatedAt = new Date();
+      updatedAt.setMinutes(updatedAt.getMinutes() + 1);
 
-    // Configuration du mock
-    (prisma.request.create as jest.Mock).mockResolvedValue({
-      clubId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
+      (prisma.club.findUnique as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        ownerId: 1,
+      });
+
+      (prisma.club.update as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: "New Mock Club A",
+        level: 2,
+        createdAt,
+        updatedAt,
+        ownerId: 1,
+      });
+
+      const club = await ClubService.updateClub(1, 1, {
+        name: "New Mock Club A",
+        level: 2,
+      });
+
+      expect(prisma.club.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { name: "New Mock Club A", level: 2 },
+      });
+
+      expect(club).toEqual({
+        id: 1,
+        name: "New Mock Club A",
+        level: 2,
+        createdAt,
+        updatedAt,
+        ownerId: 1,
+      });
     });
 
-    const club = await ClubService.sendJoinRequest(1, 1);
-    expect(club).toEqual({
-      clubId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
+    it("should throw an error if club is not found", async () => {
+      (prisma.club.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        ClubService.updateClub(1, 1, { name: "New Mock Club A", level: 2 })
+      ).rejects.toThrow("Club non trouvé.");
+    });
+
+    it("should throw an error if update fails", async () => {
+      (prisma.club.findUnique as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: "Mock Club A",
+        level: 1,
+        ownerId: 1,
+      });
+
+      (prisma.club.update as jest.Mock).mockRejectedValue(
+        new Error("Update failed")
+      );
+
+      await expect(
+        ClubService.updateClub(1, 1, { name: "New Mock Club A", level: 2 })
+      ).rejects.toThrow("Update failed");
     });
   });
 
-  it("getJoinRequests", async () => {
-    const createdAt = new Date();
+  describe("sendInvitation", () => {
+    it("should send an invitation", async () => {
+      const createdAt = new Date();
 
-    // Configuration du mock
-    (prisma.request.findMany as jest.Mock).mockResolvedValue({
-      clubId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
+      (prisma.invitation.create as jest.Mock).mockResolvedValue({
+        id: 1,
+        clubId: 1,
+        inviterId: 1,
+        userId: 2,
+        createdAt,
+        updatedAt: createdAt,
+      });
+
+      const invitation = await ClubService.sendInvitation(1, 1, 2);
+
+      expect(prisma.invitation.create).toHaveBeenCalledWith({
+        data: {
+          clubId: 1,
+          inviterId: 1,
+          userId: 2,
+        },
+      });
+
+      expect(invitation).toEqual({
+        id: 1,
+        clubId: 1,
+        inviterId: 1,
+        userId: 2,
+        createdAt,
+        updatedAt: createdAt,
+      });
+    });
+  });
+
+  describe("sendJoinRequest", () => {
+    it("should create a join request", async () => {
+      const createdAt = new Date();
+
+      (prisma.request.create as jest.Mock).mockResolvedValue({
+        id: 1,
+        clubId: 1,
+        userId: 2,
+        createdAt,
+        updatedAt: createdAt,
+      });
+
+      const request = await ClubService.sendJoinRequest(1, 2);
+
+      expect(prisma.request.create).toHaveBeenCalledWith({
+        data: {
+          clubId: 1,
+          userId: 2,
+        },
+      });
+
+      expect(request).toEqual({
+        id: 1,
+        clubId: 1,
+        userId: 2,
+        createdAt,
+        updatedAt: createdAt,
+      });
+    });
+  });
+
+  describe("getJoinRequests", () => {
+    it("should get join requests for a club", async () => {
+      const createdAt = new Date();
+
+      (prisma.request.findMany as jest.Mock).mockResolvedValue([
+        {
+          id: 1,
+          clubId: 1,
+          userId: 2,
+          createdAt,
+          updatedAt: createdAt,
+        },
+      ]);
+
+      const requests = await ClubService.getJoinRequests(1);
+
+      expect(prisma.request.findMany).toHaveBeenCalledWith({
+        where: { clubId: 1 },
+      });
+
+      expect(requests).toEqual([
+        {
+          id: 1,
+          clubId: 1,
+          userId: 2,
+          createdAt,
+          updatedAt: createdAt,
+        },
+      ]);
     });
 
-    const club = await ClubService.getJoinRequests(1);
-    expect(club).toEqual({
-      clubId: 1,
-      userId: 1,
-      createdAt: createdAt,
-      updatedAt: createdAt,
+    it("should return an empty array if no requests found", async () => {
+      (prisma.request.findMany as jest.Mock).mockResolvedValue([]);
+
+      const requests = await ClubService.getJoinRequests(99);
+      expect(requests).toEqual([]);
     });
   });
 });
